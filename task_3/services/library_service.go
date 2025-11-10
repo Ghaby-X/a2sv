@@ -1,8 +1,10 @@
+
 // Package services for library service functiosn
 package services
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/Ghaby-X/library_manager/models"
 )
@@ -14,6 +16,13 @@ type LibraryManagerInterface interface {
 	ReturnBook(int, int) error
 	ListAvailableBooks() []models.Book
 	ListBorrowedBooks(int) []models.Book
+	ReserveBook(int, int) error
+}
+
+type Reservation struct {
+	BookID   int
+	MemberID int
+	ReservedAt time.Time
 }
 
 func IDGenerator() func() int {
@@ -25,17 +34,19 @@ func IDGenerator() func() int {
 }
 
 type LibraryManager struct {
-	Books      map[int]*models.Book
-	Members    map[int]*models.Member
-	GenerateID func() int
+	Books             map[int]*models.Book
+	Members           map[int]*models.Member
+	GenerateID        func() int
+	ReservationChannel chan Reservation
 }
 
 func NewLibraryManager() *LibraryManager {
 	idGenerator := IDGenerator()
 	lm := &LibraryManager{
-		Books:      make(map[int]*models.Book),
-		Members:    make(map[int]*models.Member),
-		GenerateID: idGenerator,
+		Books:             make(map[int]*models.Book),
+		Members:           make(map[int]*models.Member),
+		GenerateID:        idGenerator,
+		ReservationChannel: make(chan Reservation),
 	}
 	return lm
 }
@@ -59,8 +70,16 @@ func (lm *LibraryManager) BorrowBook(bookID int, memberID int) error {
 		return fmt.Errorf("could not find member with ID: %d", memberID)
 	}
 
+	if book.Status == "Borrowed" {
+		return fmt.Errorf("book is not available for borrowing")
+	}
+
+	if book.Status == "Reserved" && book.ReservedBy != memberID {
+		return fmt.Errorf("book is reserved by another member")
+	}
+	
 	// copy book to member
-	lm.Members[memberID].BorrowedBooks[bookID] = *book
+	// lm.Members[memberID].BorrowedBooks[bookID] = *book
 
 	// update book status
 	lm.Books[bookID].Status = "Borrowed"
@@ -98,3 +117,28 @@ func (lm *LibraryManager) ListAvailableBooks() []models.Book {
 func (lm *LibraryManager) ListBorrowedBooks(memberID int) []models.Book {
 	return lm.Members[memberID].BorrowedBooks
 }
+
+func (lm *LibraryManager) ReserveBook(bookID int, memberID int) error {
+	book, prs := lm.Books[bookID]
+	if !prs {
+		return fmt.Errorf("book with id %d does not exist", bookID)
+	}
+
+	book.Mutex.Lock()
+	defer book.Mutex.Unlock()
+
+	if book.Status != "Available" {
+		return fmt.Errorf("book is not available for reservation")
+	}
+
+	book.Status = "Reserved"
+	book.ReservedBy = memberID
+	
+	lm.ReservationChannel <- Reservation{
+		BookID: bookID,
+		MemberID: memberID,
+		ReservedAt: time.Now(),
+	}
+	return nil
+}
+

@@ -1,3 +1,4 @@
+
 // Package controllers handle input
 package controllers
 
@@ -20,6 +21,7 @@ func Run(command string, lm *services.LibraryManager) {
 		"return_book":          ReturnBook,
 		"list_available_books": ListAvailableBooks,
 		"list_borrowed_books":  ListBorrowedBooks,
+		"reserve_book":         ReserveBook,
 	}
 
 	commandSlice := strings.Split(command, " ")
@@ -84,7 +86,7 @@ func BorrowBook(args []string, lm *services.LibraryManager) {
 		fmt.Println("failed to parse memberID: ", memberID)
 		return
 	}
-	bookID, err := strconv.Atoi(args[2])
+	bookID, err := strconv.Atoi(args[1])
 	if err != nil {
 		fmt.Println("failed to parse bookID: ", bookID)
 		return
@@ -104,13 +106,36 @@ func ReturnBook(args []string, lm *services.LibraryManager) {
 		fmt.Println("failed to parse memberID: ", memberID)
 		return
 	}
-	bookID, err := strconv.Atoi(args[2])
+	bookID, err := strconv.Atoi(args[1])
 	if err != nil {
 		fmt.Println("failed to parse bookID: ", bookID)
 		return
 	}
 
 	lm.ReturnBook(bookID, memberID)
+}
+
+func ReserveBook(args []string, lm *services.LibraryManager) {
+	if len(args) != 3 {
+		fmt.Println("Usage: reserve_book <bookID> <memberID>")
+		return
+	}
+
+	memberID, err := strconv.Atoi(args[2])
+	if err != nil {
+		fmt.Println("failed to parse memberID: ", memberID)
+		return
+	}
+	bookID, err := strconv.Atoi(args[1])
+	if err != nil {
+		fmt.Println("failed to parse bookID: ", bookID)
+		return
+	}
+
+	err = lm.ReserveBook(bookID, memberID)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func ListAvailableBooks(args []string, lm *services.LibraryManager) {
@@ -152,3 +177,4 @@ func ListBorrowedBooks(args []string, lm *services.LibraryManager) {
 func printBook(book *models.Book) {
 	fmt.Println("ID: ", book.ID, " Title: ", book.Title, " Author: ", book.Author)
 }
+

@@ -59,6 +59,5 @@ func palindromeCheck(word string) bool {
 
 func main() {
 	wordFrequencyCount("Hello3#word")
-
 	fmt.Println(palindromeCheck("abab"))
 }
