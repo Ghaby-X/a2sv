@@ -13,7 +13,7 @@ type Task struct {
 	CreatedAt   time.Time `json:"created_at"`
 	Description string    `json:"description"`
 	Status      string    `json:"status"`
-	DueDate     time.Time `json:"due_date"`
+	DueDate     time.Time `json:"due_date,omitempty"`
 }
 
 var (
