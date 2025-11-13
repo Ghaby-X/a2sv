@@ -80,7 +80,7 @@ func HandleDeleteTask(c *gin.Context) {
 	err = services.DeleteTask(num)
 	if err != nil {
 		fmt.Println("failed to delete task")
-		c.JSON(http.StatusBadRequest, gin.H{"msg": "failed to delete task"})
+		c.JSON(http.StatusNotFound, gin.H{"msg": "task not found"})
 		return
 	}
 
