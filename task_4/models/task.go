@@ -10,18 +10,21 @@ import (
 type Task struct {
 	ID          int       `json:"id"`
 	Title       string    `json:"title"`
-	CreatedAt   time.Time `json:"created_at"`
 	Description string    `json:"description"`
 	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
 	DueDate     time.Time `json:"due_date,omitempty"`
 }
 
 var (
 	Tasks  []Task
-	nextID = 1
+	nextID = 3
 )
 
 func GetAllTasks() []Task {
+	if Tasks == nil {
+		return []Task{}
+	}
 	return Tasks
 }
 
@@ -41,6 +44,24 @@ func UpdateTask(id int, newTask Task) error {
 	for i, task := range Tasks {
 		if task.ID == id {
 			newTask.ID = id
+
+			// check for zeroed out input
+			if newTask.Title == "" {
+				newTask.Title = task.Title
+			}
+
+			if newTask.Description == "" {
+				newTask.Description = task.Description
+			}
+
+			if newTask.Status == "" {
+				newTask.Status = task.Status
+			}
+
+			if newTask.DueDate.IsZero() {
+				newTask.DueDate = task.DueDate
+			}
+
 			if newTask.CreatedAt.IsZero() {
 				newTask.CreatedAt = task.CreatedAt // preserve CreatedAt
 			}
@@ -55,13 +76,19 @@ func UpdateTask(id int, newTask Task) error {
 // DeleteTasks : remove tasks from database
 func DeleteTasks(id int) error {
 	newTasks := []Task{}
+	isPresent := false
 
 	for _, task := range Tasks {
 		if task.ID != id {
 			newTasks = append(newTasks, task)
+		} else {
+			isPresent = true
 		}
 	}
 
+	if !isPresent {
+		return errors.New("task not present")
+	}
 	Tasks = newTasks
 	return nil
 }
