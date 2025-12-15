@@ -1,117 +1,27 @@
 # Task Manager API
 
-This is a simple Task Manager API built with Go, Gin, and MongoDB. It allows you to create, read, update, and delete tasks.
+This is a simple Task Manager API built with Go, Gin, and MongoDB, following Clean Architecture principles. It allows you to create, read, update, and delete tasks, with user authentication and role-based authorization.
+
+## Architecture
+
+The application is structured using Clean Architecture, separating concerns into the following layers:
+
+-   **Domain**: Contains the core business entities (Task, User).
+-   **Usecases**: Contains the application-specific business rules.
+-   **Repositories**: Abstracts the data access logic.
+-   **Infrastructure**: Implements external dependencies and services (e.g., JWT, password hashing).
+-   **Delivery**: Contains files related to the delivery layer, handling incoming requests and responses (e.g., main.go, controllers, routers).
 
 ## Features
 
-*   Create a new task
-*   Get all tasks
-*   Get a single task by its ID
-*   Update a task
-*   Delete a task
+*   User registration and login with JWT authentication.
+*   Role-based access control (admin, user).
+*   Create, read, update, and delete tasks.
+*   Promote users to admin.
 
-## API Endpoints
+## API Documentation
 
-The following endpoints are available:
-
-### Create Task
-
-*   **Method:** POST
-*   **Path:** `/tasks`
-*   **Description:** Creates a new task.
-*   **Request Body:**
-    ```json
-    {
-        "title": "My New Task",
-        "description": "This is a description of my new task.",
-        "status": "pending",
-        "due_date": "2024-05-05T00:00:00Z"
-    }
-    ```
-*   **Response:**
-    ```json
-    {
-        "msg": "task created successfully"
-    }
-    ```
-
-### Get All Tasks
-
-*   **Method:** GET
-*   **Path:** `/tasks`
-*   **Description:** Retrieves all tasks.
-*   **Response:**
-    ```json
-    {
-        "tasks": [
-            {
-                "id": 1,
-                "title": "first task",
-                "description": "sample task data",
-                "status": "Pending",
-                "created_at": "2025-11-13T21:38:46.703768581+02:00",
-                "due_date": "2025-11-13T22:38:46.703768455+02:00"
-            },
-            {
-                "id": 2,
-                "title": "Second task",
-                "description": "sample second task data",
-                "status": "Approved",
-                "created_at": "2025-11-13T21:38:46.703768807+02:00",
-                "due_date": "2025-11-13T22:38:46.703768455+02:00"
-            }
-        ]
-    }
-    ```
-
-### Get Task by ID
-
-*   **Method:** GET
-*   **Path:** `/tasks/:id`
-*   **Description:** Retrieves a single task by its ID.
-*   **Response:**
-    ```json
-    {
-        "task": {
-            "id": 2,
-            "title": "Second task",
-            "description": "sample second task data",
-            "status": "Approved",
-            "created_at": "2025-11-13T21:38:46.703768807+02:00",
-            "due_date": "2025-11-13T22:38:46.703768455+02:00"
-        }
-    }
-    ```
-
-### Update Task
-
-*   **Method:** PUT
-*   **Path:** `/tasks/:id`
-*   **Description:** Updates a task.
-*   **Request Body:**
-    ```json
-    {
-        "title": "Updated Title"
-    }
-    ```
-*   **Response:**
-    ```json
-    {
-        "msg": "task updated successfully"
-    }
-    ```
-
-### Delete Task
-
-*   **Method:** DELETE
-*   **Path:** `/tasks/:id`
-*   **Description:** Deletes a task.
-*   **Response:**
-    ```json
-    {
-        "msg": "task deleted successfully"
-    }
-    ```
+For detailed information about the API endpoints, authentication, and authorization, please see the [API Documentation](docs/api_documentation.md).
 
 ## Setup Instructions
 
@@ -148,18 +58,20 @@ This will start a MongoDB instance on `localhost:27017`.
 
 ### 5. Create a `.env` File
 
-Create a `.env` file in the root of the project and add your MongoDB connection URI:
+Create a `.env` file in the root of the project and add your MongoDB connection URI and a JWT secret:
 
 ```
 MONGO_URI=mongodb://localhost:27017
+DB_NAME=task_manager
+JWT_SECRET=your_jwt_secret
 ```
 
 ## How to Run
 
-To run the application, use the following command:
+To run the application, use the following command from the project root:
 
 ```bash
-go run main.go
+go run Delivery/main.go
 ```
 
 The server will start on the default Gin port (`:8080`).
@@ -167,3 +79,5 @@ The server will start on the default Gin port (`:8080`).
 ## Environment Variables
 
 *   `MONGO_URI`: The connection URI for your MongoDB instance.
+*   `DB_NAME`: The name of the database.
+*   `JWT_SECRET`: A secret key for signing JWT tokens.

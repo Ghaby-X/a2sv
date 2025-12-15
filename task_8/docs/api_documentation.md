@@ -2,10 +2,6 @@
 
 This document provides an overview of the Task Management API, including user authentication, authorization, and task management endpoints.
 
-## Postman Collection
-
-A Postman collection is available in this directory to test the API. You can import the `TaskManager.postman_collection.json` file into Postman to get started.
-
 ## Authentication and Authorization
 
 The API uses JSON Web Tokens (JWT) for authentication and role-based access control for authorization.
@@ -41,7 +37,7 @@ The API uses JSON Web Tokens (JWT) for authentication and role-based access cont
 
 *   **Method:** `POST`
 *   **Path:** `/login`
-*   **Description:** Authenticates a user and returns a JWT token. This token must be included in the `Authorization` header of subsequent requests to protected routes.
+*   **Description:** Authenticates a user and returns a JWT token. This token must be included in the `Authorization` header of subsequent requests to protected routes (e.g., `Authorization: Bearer <token>`).
 *   **Request Body:**
     ```json
     {
